@@ -1,11 +1,11 @@
--r requirements.txt
 -r docs/requirements.txt
-
-pre-commit
+-r requirements.txt
+codecov
 flake8
-yapf
 isort
 
-pytest>=3.6
+pre-commit
 pytest-cov
-codecov
+
+pytest>=3.6
+yapf

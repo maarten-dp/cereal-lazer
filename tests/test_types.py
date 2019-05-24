@@ -1,30 +1,34 @@
-import pytz
-import pytest
 import datetime
 from functools import partial
 from itertools import permutations
+
+import pytest
+import pytz
 from cereal_lazer import dumps, loads, register_class
 
-
 to_test = [
-    5,
-    5.5,
-    'test',
-    [1, 'test', 6.7],
-    {'test1': 5.5, 'test2': 4, 6: 'test3'},
-    True,
-    False,
+    5, 5.5, 'test', [1, 'test', 6.7], {
+        'test1': 5.5,
+        'test2': 4,
+        6: 'test3'
+    }, True, False,
     datetime.date(2018, 1, 1),
     datetime.datetime(2018, 1, 1, tzinfo=pytz.UTC),
-    datetime.datetime(2018, 1, 1),
-    [1, 2, 3, 4, 5],
-    [1, 'test', [2, 'test,1']],
-    {1: 'test', 'test': {2: 5.6}, 3: [1, 2]}
+    datetime.datetime(2018, 1, 1), [1, 2, 3, 4, 5], [1, 'test', [2, 'test,1']],
+    {
+        1: 'test',
+        'test': {
+            2: 5.6
+        },
+        3: [1, 2]
+    }
 ]
+
 
 @pytest.mark.parametrize('to_serialize', to_test)
 def test_serialize(to_serialize):
-    assert loads(dumps(to_serialize, fmt='msgpack'), fmt='msgpack') == to_serialize
+    assert loads(
+        dumps(to_serialize, fmt='msgpack'), fmt='msgpack') == to_serialize
 
 
 def set_up_custom_type():

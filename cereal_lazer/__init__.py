@@ -6,17 +6,18 @@ Small layer on top of serializer that:
 
 To better fit the needs.
 """
-import serialize
 from datetime import date, datetime
-import pytz
 
+import pytz
+import serialize
 
 NAME_BY_CLASS = {}
 
 
 def encode_helper(obj, to_builtin):
-    return dict(__class_name__= NAME_BY_CLASS[obj.__class__],
-                __dumped_obj__=to_builtin(obj))
+    return dict(
+        __class_name__=NAME_BY_CLASS[obj.__class__],
+        __dumped_obj__=to_builtin(obj))
 
 
 serialize.all.encode_helper = encode_helper
@@ -43,8 +44,8 @@ def loads(body, fmt):
 
 
 register_class(
-    datetime.__name__,
-    datetime,
+    datetime.__name__, datetime,
     lambda x: (x.timetuple()[:-3], str(x.tzinfo) if x.tzinfo else None),
     lambda x: datetime(*x[0], tzinfo=pytz.timezone(x[1]) if x[1] else x[1]))
-register_class(date.__name__, date, lambda x: x.timetuple()[:3], lambda x: date(*x))
+register_class(date.__name__, date, lambda x: x.timetuple()[:3],
+               lambda x: date(*x))
