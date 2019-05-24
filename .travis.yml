@@ -1,31 +1,23 @@
 language: python
 python:
-  - 3.6
-
+- 3.6
 install:
-    - pip install -r requirements-dev.txt
-    - pip install .
-
+- pip install -r requirements-dev.txt
+- pip install .
 jobs:
   include:
-    - stage: test
-      script: pytest
-    - stage: linter
-      script: pre-commit run --all-files
-
+  - stage: test
+    script: pytest
+  - stage: linter
+    script: pre-commit run --all-files
 after_success:
-  - codecov
-
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
+- codecov
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
   user: maartendp
   password:
-    secure: PLEASE_REPLACE_ME
+    secure: CB3c9eTfb/7Y3R/r+gN+HhKqmp8r0c7XbxogqndvonQGWNXZZ5kmZ8sXegU14SYBFqFC+GFN4OZi8Oyp25acS7sQJIuRUyTUXqN7IGBiUI9tjRCyr9o/RmR2JxmI/S+RCnEDSqgBu4tzFlrX0H5J5QSp01WmEPT72OpBhC+U6rJcLvZbwOo24y7FezaZSfdCuEAd2z+TlB2LwP687AkhF5GVQLhIV9PVRuFNe5xhkltXdcNf38EjyxsRkkLy29W1JLdMYujJ5oVqCuTx8BO18KlS7JvK5Y6hl3q6oamsNNPh/Ym0qbUANqnjAvTflf1mG6oE9TyHngs8PA8PzMTA6lkh6BEv54ChfJ9ilZTZHHW1MdMplgQvG3dWQtTe0X2dg1cYytEewZEBmcWBpzgYzTWJYRztNfQIOv75h1mgr+tK/S5Ck6b7bES7tmF8prDYEh9EEOP4IByeTGhV7vlIxqruhY40T5mA2j2bM5NdO7bga7jJEkDh7kCrz3v2Bl8Txl04O4ZelBRBex0L68sXN8qG6x8tlcS/dZcVYjZuAu/UVsi+KRSIpmgjD87J0bx5C8LdZAdgFKmzIkOuZoaaRumIsIwCjW1u8jwd+qnQ2cksPZTRI/LJYhlPmQ/yxunYr3FOA44er3zIwsJPTF8hUdz796CZm5k+LtBaXHPShO0=
   on:
     tags: true
     repo: maarten-dp/cereal-lazer
