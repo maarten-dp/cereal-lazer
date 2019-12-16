@@ -7,10 +7,6 @@ variables:
     # URL for doc upload
     DOC_UPLOAD: "http://something.com"
 
-# Pip's cache doesn't store the python packages
-# https://pip.pypa.io/en/stable/reference/pip_install/#caching
-# If you want to also cache the installed packages,
-# you have to install them in a virtualenv and cache it as well.
 cache:
   paths:
     - .cache/
@@ -21,22 +17,6 @@ before_script:
     # Verbosity:
     - env |grep CI_
     - pwd
-
-    ## SSH handle
-    #- mkdir -p ~/.ssh
-    #- echo "$SSH_CONFIG" >> ~/.ssh/config  # quote need so that pass variable with newlines
-    ## auto confirm RSA key fingerprint:
-    #- echo "StrictHostKeyChecking no" | cat - ~/.ssh/config > temp && mv temp ~/.ssh/config
-    #- echo "$SSH_PRIVATE_KEY" > ~/.ssh/myprivatekey
-    #- cat ~/.ssh/config
-    #- chmod 600 ~/.ssh/myprivatekey
-    #- eval $(ssh-agent -s) && ssh-add ~/.ssh/myprivatekey
-
-    ## Pip config:
-    #- mkdir -p ~/.pip
-    #- echo "$PIP_CONF" > ~/.pip/pip.conf
-
-    # Install your project
     - pip install -U setuptools pbr virtualenv
 
     - virtualenv venv
