@@ -15,20 +15,33 @@ def limitted_method(name, klass_name):
     return method
 
 
+def raise_when_called(exc):
+    def decorated(*args, **kwargs):
+        raise exc
+
+    return decorated
+
+
 class EmulatedObject:
-    def __init__(self, klass_name, callables):
-        self.klass_name = klass_name
-        for method in callables:
-            setattr(self, method, limitted_method(method, klass_name))
+    def __init__(self, definition):
+        self.klass_name = definition['class_name']
+        for method in definition['callable']:
+            setattr(self, method, limitted_method(method, self.klass_name))
 
 
-def get_iterable_klass(cereal, iterable):
-    iterator = [cereal.loads(a) for a in iterable]
-    iterable = {
-        '__iter__': lambda *x, **y: iter(iterator),
-        '__next__': lambda *x, **y: iter(iterator).__next__()
-    }
-    return type('EmulatedObject', (EmulatedObject, ), iterable)
+def get_emulated_klass(cereal, definition):
+    attributes = {}
+    if 'iterable' in definition:
+        iterator = [cereal.loads(a) for a in definition['iterable']]
+        attributes = {
+            '__iter__': lambda *x, **y: iter(iterator),
+            '__next__': lambda *x, **y: iter(iterator).__next__()
+        }
+    for attr_name, (msg, excklass) in definition['raisers'].items():
+        exc = type(excklass, (Exception, ), {})
+        attributes[attr_name] = property(raise_when_called(exc(msg)))
+    klass_name = 'Emulated{}'.format(definition['class_name'])
+    return type(klass_name, (EmulatedObject, ), attributes)
 
 
 def naive_serializer(cereal, obj):
@@ -36,15 +49,19 @@ def naive_serializer(cereal, obj):
         'class_name': obj.__class__.__name__,
         'callable': [],
         'attributes': {},
+        'raisers': {}
     }
     for attr_name in dir(obj):
         if attr_name.startswith('__'):
             continue
-        attr = getattr(obj, attr_name)
-        if callable(attr):
-            result['callable'].append(attr_name)
-        else:
-            result['attributes'][attr_name] = cereal.dumps(attr)
+        try:
+            attr = getattr(obj, attr_name)
+            if callable(attr):
+                result['callable'].append(attr_name)
+            else:
+                result['attributes'][attr_name] = cereal.dumps(attr)
+        except Exception as e:
+            result['raisers'][attr_name] = (str(e), e.__class__.__name__)
 
     is_iterable = True
     try:
@@ -62,10 +79,8 @@ def naive_serializer(cereal, obj):
 
 
 def naive_deserializer(cereal, definition):
-    EmulatedKlass = EmulatedObject
-    if 'iterable' in definition:
-        EmulatedKlass = get_iterable_klass(cereal, definition['iterable'])
-    obj = EmulatedKlass(definition['class_name'], definition['callable'])
+    EmulatedKlass = get_emulated_klass(cereal, definition)
+    obj = EmulatedKlass(definition)
     for attr_name, attr in definition['attributes'].items():
         setattr(obj, attr_name, cereal.loads(attr))
     return obj

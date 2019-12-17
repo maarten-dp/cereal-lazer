@@ -83,6 +83,26 @@ def test_it_can_serialize_naively():
         res.some_method()
 
 
+def test_it_can_catch_exceptions_and_transport_them():
+    cr = Cereal(serialize_naively=True)
+    expected_msg = 'Something happened, yo'
+
+    class SomeNicheException(Exception):
+        pass
+
+    class SomeObject():
+        @property
+        def will_raise(self):
+            raise SomeNicheException(expected_msg)
+
+    o = SomeObject()
+    res = cr.loads(cr.dumps(o))
+    assert res.__class__.__name__ == 'EmulatedSomeObject'
+    with pytest.raises(Exception, match=expected_msg) as exc:
+        res.will_raise
+    assert exc.type.__name__ == 'SomeNicheException'
+
+
 def test_it_can_emulate_an_iterable():
     cr = Cereal(serialize_naively=True)
 
@@ -92,7 +112,7 @@ def test_it_can_emulate_an_iterable():
 
     o = SomeObject()
     res = cr.loads(cr.dumps(o))
-    assert res.__class__.__name__ == 'EmulatedObject'
+    assert res.__class__.__name__ == 'EmulatedSomeObject'
     assert list(res) == [1, 2, 3, 4]
 
 
