@@ -4,7 +4,7 @@ from itertools import permutations
 
 import pytest
 import pytz
-from cereal_lazer.cereal import Cereal
+from cereal_lazer.cereal import INSTANCE_KEY, Cereal
 from cereal_lazer.naive_serializing import LimitedMethodError
 
 cr = Cereal()
@@ -116,6 +116,28 @@ def test_it_can_emulate_an_iterable():
     assert list(res) == [1, 2, 3, 4]
 
 
+def test_it_can_ship_a_class():
+    cr = Cereal(serialize_naively=True)
+
+    class SomeObject():
+        pass
+
+    res = cr.loads(cr.dumps(SomeObject))
+    assert res.__name__ == 'EmulatedSomeObject'
+
+
+def test_it_can_ship_a_registered_class():
+    cr = Cereal(serialize_naively=True)
+
+    class SomeObject():
+        pass
+
+    cr.register_class('SomeObject', SomeObject, None, None)
+
+    res = cr.loads(cr.dumps(SomeObject))
+    assert res == SomeObject
+
+
 class RaiseObject():
     def __init__(self, a):
         if isinstance(a, int):
@@ -151,4 +173,4 @@ def test_it_can_ignore_load_errors():
 
     cr.register_class('RaiseObject', RaiseObject, to_builtin, from_builtin)
     res = cr.loads(cr.dumps(o))
-    assert res == {'__cereal_lazer__': ['RaiseObject', 1]}
+    assert res == {INSTANCE_KEY: ['RaiseObject', 1]}

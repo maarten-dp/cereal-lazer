@@ -1,12 +1,14 @@
+import inspect
 from datetime import date, datetime
 from functools import partial
 
 import msgpack
 import pytz
 
-from .naive_serializing import naive_deserializer, naive_serializer
+from .naive_serializing import get_emulated_klass, naive_deserializer, naive_serializer
 
-LIB_KEY = '__cereal_lazer__'
+INSTANCE_KEY = '__cereal_lazer_instance__'
+CLASS_KEY = '__cereal_lazer_class__'
 
 
 def default_encoder(cereal):
@@ -26,9 +28,8 @@ class Cereal:
         self.to_format = {}
         self.from_format = {}
         self.registered_as = {}
+        self.class_from_name = {}
         self.register_default()
-        self.encoding_registry = {}
-        self.encoding = False
 
         self.serialize_naively = serialize_naively
         self.raise_load_errors = raise_load_errors
@@ -37,6 +38,7 @@ class Cereal:
         self.to_format[klass] = to_fn
         self.from_format[name] = from_fn
         self.registered_as[klass] = name
+        self.class_from_name[name] = klass
 
     def dumps(self, obj):
         return msgpack.packb(obj, default=self._encode).hex()
@@ -53,17 +55,28 @@ class Cereal:
 
     def _decode(self, content):
         if isinstance(content, dict):
-            if LIB_KEY in content:
-                as_name, obj = content[LIB_KEY]
+            if INSTANCE_KEY in content:
+                as_name, obj = content[INSTANCE_KEY]
                 from_fn = self.from_format.get(as_name, default_decoder(self))
                 return from_fn(obj)
+            if CLASS_KEY in content:
+                as_name = content[CLASS_KEY]
+                default = as_name
+                if self.serialize_naively:
+                    default = get_emulated_klass(self, {
+                        'class_name': as_name,
+                        'raisers': {}
+                    })
+                return self.class_from_name.get(as_name, default)
         return content
 
     def _encode(self, obj):
+        if inspect.isclass(obj):
+            return {CLASS_KEY: obj.__name__}
         klass = obj.__class__
         to_fn = self.to_format.get(klass, default_encoder(self))
         as_name = self.registered_as.get(klass, klass.__name__)
-        return {LIB_KEY: (as_name, to_fn(obj))}
+        return {INSTANCE_KEY: (as_name, to_fn(obj))}
 
     def register_default(self):
         self.register_class(
