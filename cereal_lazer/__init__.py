@@ -1,1 +1,1 @@
-from .cereal import Cereal
+from .cereal import Cereal  # noqa

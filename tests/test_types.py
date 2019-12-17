@@ -24,16 +24,16 @@ to_test = [
             2: 5.6
         },
         3: [1, 2]
-    },
-    [datetime.date(2018, 1, 1), datetime.date(2018, 1, 2)],
-    {'test': datetime.date(2018, 1, 1)}
+    }, [datetime.date(2018, 1, 1),
+        datetime.date(2018, 1, 2)], {
+            'test': datetime.date(2018, 1, 1)
+        }
 ]
 
 
 @pytest.mark.parametrize('to_serialize', to_test)
 def test_serialize(to_serialize):
-    assert cr.loads(
-        cr.dumps(to_serialize)) == to_serialize
+    assert cr.loads(cr.dumps(to_serialize)) == to_serialize
 
 
 class SomeObject:
@@ -59,7 +59,8 @@ def set_up_custom_type():
     def from_builtin(v):
         return SomeObject(v[0], v[1], v[2])
 
-    cr.register_class(SomeObject.__name__, SomeObject, to_builtin, from_builtin)
+    cr.register_class(SomeObject.__name__, SomeObject, to_builtin,
+                      from_builtin)
     return SomeObject
 
 
@@ -87,12 +88,12 @@ def test_it_can_emulate_an_iterable():
 
     class SomeObject():
         def __iter__(self):
-            return iter([1,2,3,4])
+            return iter([1, 2, 3, 4])
 
     o = SomeObject()
     res = cr.loads(cr.dumps(o))
     assert res.__class__.__name__ == 'EmulatedObject'
-    assert list(res) == [1,2,3,4]
+    assert list(res) == [1, 2, 3, 4]
 
 
 class RaiseObject():

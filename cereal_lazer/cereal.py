@@ -1,10 +1,10 @@
-import msgpack
-from datetime import datetime, date
-import pytz
-from collections import namedtuple
+from datetime import date, datetime
 from functools import partial
-from .naive_serializing import naive_serializer, naive_deserializer
-from contextlib import contextmanager
+
+import msgpack
+import pytz
+
+from .naive_serializing import naive_deserializer, naive_serializer
 
 LIB_KEY = '__cereal_lazer__'
 
@@ -70,7 +70,5 @@ class Cereal:
             datetime.__name__, datetime,
             lambda x: (x.timetuple()[:-3], str(x.tzinfo) if x.tzinfo else None),
             lambda x: datetime(*x[0], tzinfo=pytz.timezone(x[1]) if x[1] else x[1]))
-        self.register_class(
-            date.__name__, date,
-            lambda x: x.timetuple()[:3],
-            lambda x: date(*x))
+        self.register_class(date.__name__, date, lambda x: x.timetuple()[:3],
+                            lambda x: date(*x))

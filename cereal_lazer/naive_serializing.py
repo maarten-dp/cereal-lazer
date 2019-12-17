@@ -1,14 +1,17 @@
 from collections.abc import Iterable
 
 
-class LimitedMethodError(Exception): pass
+class LimitedMethodError(Exception):
+    pass
 
 
 def limitted_method(name, klass_name):
     msg = ('{} cannot be called on an emulated object. Define a (de)serializer'
            ' for the class {} in order to interract with it correctly')
+
     def method(*args, **kwargs):
         raise LimitedMethodError(msg.format(name, klass_name))
+
     return method
 
 
@@ -66,4 +69,3 @@ def naive_deserializer(cereal, definition):
     for attr_name, attr in definition['attributes'].items():
         setattr(obj, attr_name, cereal.loads(attr))
     return obj
-
