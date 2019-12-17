@@ -3,7 +3,7 @@ python:
   - 3.6
 
 install:
-  - pip install -U --user -r requirements-dev.txt
+  - pip install -r requirements-dev.txt
   - pip install -e .
 
 cache:
