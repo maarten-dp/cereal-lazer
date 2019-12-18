@@ -174,3 +174,21 @@ def test_it_can_ignore_load_errors():
     cr.register_class('RaiseObject', RaiseObject, to_builtin, from_builtin)
     res = cr.loads(cr.dumps(o))
     assert res == {INSTANCE_KEY: ['RaiseObject', 1]}
+
+
+def test_it_doesnt_get_caught_in_recursion():
+    class A:
+        pass
+
+    class B:
+        pass
+
+    a = A()
+    b = B()
+    a.b = b
+    b.a = a
+
+    cr = Cereal(serialize_naively=True)
+    dump = cr.dumps(a)
+    res = cr.loads(dump)
+    assert res.b

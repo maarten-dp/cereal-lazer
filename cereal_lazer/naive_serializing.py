@@ -1,4 +1,17 @@
 from collections.abc import Iterable
+from contextlib import contextmanager
+
+DEPTH = 0
+
+
+@contextmanager
+def depth_context():
+    # temp solution to recursion errors. Should ideally be replaced by a sort
+    # of registry solution
+    global DEPTH
+    DEPTH += 1
+    yield DEPTH
+    DEPTH -= 1
 
 
 class LimitedMethodError(Exception):
@@ -37,7 +50,7 @@ def get_emulated_klass(cereal, definition):
             '__iter__': lambda *x, **y: iter(iterator),
             '__next__': lambda *x, **y: iter(iterator).__next__()
         }
-    for attr_name, (msg, excklass) in definition['raisers'].items():
+    for attr_name, (msg, excklass) in definition.get('raisers', {}).items():
         exc = type(excklass, (Exception, ), {})
         attributes[attr_name] = property(raise_when_called(exc(msg)))
     klass_name = 'Emulated{}'.format(definition['class_name'])
@@ -45,6 +58,18 @@ def get_emulated_klass(cereal, definition):
 
 
 def naive_serializer(cereal, obj):
+    with depth_context() as depth:
+        if depth < cereal.max_naive_depth:
+            return _naive_serializer(cereal, obj)
+        return {
+            'class_name': obj.__class__.__name__,
+            'callable': [],
+            'attributes': {},
+            'raisers': {}
+        }
+
+
+def _naive_serializer(cereal, obj):
     result = {
         'class_name': obj.__class__.__name__,
         'callable': [],

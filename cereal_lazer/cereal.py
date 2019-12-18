@@ -24,12 +24,16 @@ def default_decoder(cereal):
 
 
 class Cereal:
-    def __init__(self, serialize_naively=False, raise_load_errors=True):
+    def __init__(self,
+                 serialize_naively=False,
+                 raise_load_errors=True,
+                 max_naive_depth=5):
         self.to_format = {}
         self.from_format = {}
         self.registered_as = {}
         self.class_from_name = {}
         self.register_default()
+        self.max_naive_depth = max_naive_depth
 
         self.serialize_naively = serialize_naively
         self.raise_load_errors = raise_load_errors
