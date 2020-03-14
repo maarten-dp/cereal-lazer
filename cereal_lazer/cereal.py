@@ -51,11 +51,11 @@ class Cereal:
         content = bytes.fromhex(content)
         try:
             return msgpack.unpackb(
-                content, object_hook=self._decode, encoding='utf-8')
+                content, object_hook=self._decode, raw=False)
         except Exception as e:
             if self.raise_load_errors:
                 raise e
-            return msgpack.unpackb(content, encoding='utf-8')
+            return msgpack.unpackb(content, raw=False)
 
     def _decode(self, content):
         if isinstance(content, dict):
@@ -89,3 +89,4 @@ class Cereal:
             lambda x: datetime(*x[0], tzinfo=pytz.timezone(x[1]) if x[1] else x[1]))
         self.register_class(date.__name__, date, lambda x: x.timetuple()[:3],
                             lambda x: date(*x))
+        self.register_class('set', set, lambda x: list(x), lambda x: set(x))

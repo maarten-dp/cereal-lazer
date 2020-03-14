@@ -10,24 +10,27 @@ from cereal_lazer.naive_serializing import LimitedMethodError
 cr = Cereal()
 
 to_test = [
-    5, 5.5, 'test', [1, 'test', 6.7], {
-        'test1': 5.5,
-        'test2': 4,
-        6: 'test3'
-    }, True, False,
+    # Bools, Int, Float, str
+    True, False, 5, 5.5, 'test',
+
+    # Dates and Datetimes
     datetime.date(2018, 1, 1),
     datetime.datetime(2018, 1, 1, tzinfo=pytz.UTC),
-    datetime.datetime(2018, 1, 1), [1, 2, 3, 4, 5], [1, 'test', [2, 'test,1']],
-    {
-        1: 'test',
-        'test': {
-            2: 5.6
-        },
-        3: [1, 2]
-    }, [datetime.date(2018, 1, 1),
-        datetime.date(2018, 1, 2)], {
-            'test': datetime.date(2018, 1, 1)
-        }
+    datetime.datetime(2018, 1, 1),
+
+    # Lists
+    [1, 2, 3, 4, 5],  # int
+    [datetime.date(2018, 1, 1), datetime.date(2018, 1, 2)],  # dates
+    [1, 'test', [2., {'test,1',}]],  # nested types
+
+    # Set
+    {1, 2., True, "str", datetime.date(2018, 1, 1), datetime.date(2018, 1, 2)},
+
+    # Dict of dates
+    {'test': datetime.date(2018, 1, 1)},
+
+    # Nested types Dict
+    {1: 'test', 'test': {2: 5.6}, 3: [1, 2]},
 ]
 
 
