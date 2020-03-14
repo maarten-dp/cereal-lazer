@@ -11,7 +11,11 @@ cr = Cereal()
 
 to_test = [
     # Bools, Int, Float, str
-    True, False, 5, 5.5, 'test',
+    True,
+    False,
+    5,
+    5.5,
+    'test',
 
     # Dates and Datetimes
     datetime.date(2018, 1, 1),
@@ -20,17 +24,30 @@ to_test = [
 
     # Lists
     [1, 2, 3, 4, 5],  # int
-    [datetime.date(2018, 1, 1), datetime.date(2018, 1, 2)],  # dates
-    [1, 'test', [2., {'test,1',}]],  # nested types
+    [datetime.date(2018, 1, 1),
+     datetime.date(2018, 1, 2)],  # dates
+    [1, 'test', [2., {
+        'test,1',
+    }]],  # nested types
 
     # Set
-    {1, 2., True, "str", datetime.date(2018, 1, 1), datetime.date(2018, 1, 2)},
+    {1, 2., True, "str",
+     datetime.date(2018, 1, 1),
+     datetime.date(2018, 1, 2)},
 
     # Dict of dates
-    {'test': datetime.date(2018, 1, 1)},
+    {
+        'test': datetime.date(2018, 1, 1)
+    },
 
     # Nested types Dict
-    {1: 'test', 'test': {2: 5.6}, 3: [1, 2]},
+    {
+        1: 'test',
+        'test': {
+            2: 5.6
+        },
+        3: [1, 2]
+    },
 ]
 
 
