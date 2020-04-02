@@ -1,4 +1,5 @@
 import inspect
+import warnings
 from datetime import date, datetime
 from functools import partial
 
@@ -10,15 +11,22 @@ from .naive_serializing import get_emulated_klass, naive_deserializer, naive_ser
 INSTANCE_KEY = '__cereal_lazer_instance__'
 CLASS_KEY = '__cereal_lazer_class__'
 
+RAISE_WARNING = ("Loading failed but raising the error is disabled. "
+                 "Returning raw value: {}")
+NAIVE_WARNING = ("Naive {} is enabled. Please consider registering a "
+                 "valid type.")
+
 
 def default_encoder(cereal):
     if cereal.serialize_naively:
+        warnings.warn(NAIVE_WARNING.format('loading'))
         return partial(naive_serializer, cereal)
     return lambda x: x
 
 
 def default_decoder(cereal):
     if cereal.serialize_naively:
+        warnings.warn(NAIVE_WARNING.format('dumping'))
         return partial(naive_deserializer, cereal)
     return lambda x: x
 
@@ -55,6 +63,7 @@ class Cereal:
         except Exception as e:
             if self.raise_load_errors:
                 raise e
+            warnings.warn(RAISE_WARNING.format(e))
             return msgpack.unpackb(content, raw=False)
 
     def _decode(self, content):

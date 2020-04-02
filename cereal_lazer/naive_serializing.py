@@ -104,8 +104,10 @@ def _naive_serializer(cereal, obj):
 
 
 def naive_deserializer(cereal, definition):
-    EmulatedKlass = get_emulated_klass(cereal, definition)
-    obj = EmulatedKlass(definition)
-    for attr_name, attr in definition['attributes'].items():
-        setattr(obj, attr_name, cereal.loads(attr))
-    return obj
+    if isinstance(definition, dict) and 'class_name' in definition:
+        EmulatedKlass = get_emulated_klass(cereal, definition)
+        obj = EmulatedKlass(definition)
+        for attr_name, attr in definition['attributes'].items():
+            setattr(obj, attr_name, cereal.loads(attr))
+        return obj
+    return definition
