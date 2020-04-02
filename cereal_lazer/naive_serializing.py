@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable
 from contextlib import contextmanager
 
@@ -110,4 +111,7 @@ def naive_deserializer(cereal, definition):
         for attr_name, attr in definition['attributes'].items():
             setattr(obj, attr_name, cereal.loads(attr))
         return obj
+    warnings.warn("Tried to naively load, but type is not marked as naive. "
+                  "This likely means that the type was registered correctly "
+                  "when it was dumped. Returning raw data.")
     return definition
